@@ -16,8 +16,8 @@ This repository is a codebase for modern image deep networks, which is used in o
 
 
 ## Updates
-+ [2022.12.27] The code for ImageNet-1k classification is released.
-+ [2022.12.27] The code for COCO object detection is released.
++ [2022.12.30] The code for ImageNet-1k classification is released.
++ [2022.12.30] The code for COCO object detection is released.
 + [TODO] DCNv3 from InternImage will be supported.
 
 ## Highlights
