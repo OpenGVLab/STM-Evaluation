@@ -145,9 +145,9 @@ Plese refer this [guide](detection/readme.md) the train and evaluate the models 
 ## Bibtex
 If you find our work or models useful, please consider citing our paper as follows:
 ```
-@article{dai2022demystify,
-  title={Demystify transformers \& convolutions in modern image deep networks},
-  author={Dai, Jifeng and Shi, Min and Wang, Weiyun and Wu, Sitong and Xing, Linjie and Wang, Wenhai and Zhu, Xizhou and Lu, Lewei and Zhou, Jie and Wang, Xiaogang and others},
+@article{hu2022demystify,
+  title={Demystify Transformers \& Convolutions in Modern Image Deep Networks},
+  author={Hu, Xiaowei and Shi, Min and Wang, Weiyun and Wu, Sitong and Xing, Linjie and Wang, Wenhai and Zhu, Xizhou and Lu, Lewei and Zhou, Jie and Wang, Xiaogang and Qiao, Yu and Dai, Jifeng},
   journal={arXiv preprint arXiv:2211.05781},
   year={2022}
 }
