@@ -16,7 +16,7 @@ This repository is a codebase for modern image deep networks, which is used in o
 
 
 ## Updates
-+ [2024.10.06] The code and ckpt for DCNv3 from InternImage is released.
++ [2024.10.06] The code and checkpoints for Unified-InternImage are released.
 + [2022.12.30] The code for ImageNet-1k classification is released.
 + [2022.12.30] The code for COCO object detection is released.
 
