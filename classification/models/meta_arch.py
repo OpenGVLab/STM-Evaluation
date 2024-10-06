@@ -1,8 +1,10 @@
 import torch
 import torch.nn.functional as F
+import torch.utils.checkpoint as cp
 
 from torch import nn
 from timm.models.layers import to_2tuple, trunc_normal_
+from .blocks.pvt import PvtBlock
 
 
 class LayerNorm2d(nn.LayerNorm):
@@ -90,6 +92,8 @@ class MetaArch(nn.Module):
                  norm_after_avg=False,
                  act_layer=nn.GELU,
                  forward_kwargs=None,
+                 use_checkpoint=False,
+                 label_map_path=None,
                  **kwargs,
                  ):
         super().__init__()
@@ -102,6 +106,12 @@ class MetaArch(nn.Module):
         self.depths = depths
         self.block_type = block_type
         self.forward_kwargs = forward_kwargs
+        self.use_checkpoint = use_checkpoint
+        self.label_map_path = label_map_path
+
+        if label_map_path is not None and num_classes != 1000:
+            with open(label_map_path, 'r', encoding='utf-8') as file:
+                self.label_map = [int(i) for i in file.readlines()]
 
         # stem + downsample_layers
         stem = stem_type(in_channels=in_channels,
@@ -127,17 +137,18 @@ class MetaArch(nn.Module):
         dp_rates = [x.item() for x in torch.linspace(0, drop_path_rate, sum(depths))]
         self.stages = nn.ModuleList()
         self.stage_norms = nn.ModuleList()
+
         for i, (depth, dim) in enumerate(zip(depths, dims)):
-            self.stages.append(nn.Sequential(
-                *[block_type(dim=dim,
-                             drop_path=dp_rates[cur + j],
-                             stage=i,
-                             depth=j,
-                             total_depth=cur+j,
-                             input_resolution=(self.patch_grid[0] // (2 ** i), self.patch_grid[1] // (2 ** i)),
-                             layer_scale_init_value=layer_scale_init_value,
-                             **block_kwargs)
-                  for j in range(depth)]
+            self.stages.append(nn.ModuleList(
+                [block_type(dim=dim,
+                            drop_path=dp_rates[cur + j],
+                            stage=i,
+                            depth=j,
+                            total_depth=cur+j,
+                            input_resolution=(self.patch_grid[0] // (2 ** i), self.patch_grid[1] // (2 ** i)),
+                            layer_scale_init_value=layer_scale_init_value,
+                            **block_kwargs)
+                 for j in range(depth)]
             ))
             self.stage_norms.append(norm_layer(dim) if norm_every_stage else nn.Identity())
             cur += depths[i]
@@ -193,7 +204,12 @@ class MetaArch(nn.Module):
             if hasattr(self.block_type, 'pre_stage_transform'):  # halonet
                 x = self.block_type.pre_stage_transform(x)
 
-            x = self.stages[i](x if extra_inputs is None else (x, extra_inputs[i]))
+            x = x if extra_inputs is None else (x, extra_inputs[i])
+            for blk in self.stages[i]:
+                if self.use_checkpoint:
+                    x = cp.checkpoint(blk, x)
+                else:
+                    x = blk(x)
 
             if hasattr(self.block_type, 'post_stage_transform'):
                 x = self.block_type.post_stage_transform(x)
@@ -211,3 +227,70 @@ class MetaArch(nn.Module):
         x = self.forward_features(x)
         x = self.head(x)
         return x
+
+    def load_state_dict(self, state_dict, strict: bool = True):
+        new_state_dict = {}
+        for key, value in state_dict.items():
+            if 'relative_position_index' in key:
+                continue
+
+            if 'attn_mask' in key:
+                continue
+
+            # swin pos embed
+            if 'relative_position_bias_table' in key:
+                L1, nH1 = value.shape
+                S1 = int(L1 ** 0.5)
+
+                L2, nH2 = self.state_dict()[key].shape
+                S2 = int(L2 ** 0.5)
+
+                assert nH1 == nH2
+
+                value = value.permute(1, 0).view(1, nH1, S1, S1)
+                value = F.interpolate(value,
+                                      size=(S2, S2),
+                                      mode='bicubic')
+                value = value.view(nH2, L2).permute(1, 0)
+
+            # halonet pos embed
+            if 'height_rel' in key or 'width_rel' in key:
+                win_size = self.state_dict()[key].shape[0]
+                value = value.permute(1, 0).contiguous().unsqueeze(0)
+                value = F.interpolate(value,
+                                      size=win_size,
+                                      mode='linear',
+                                      align_corners=True)
+                value = value.squeeze(0).permute(1, 0).contiguous()
+
+            if 'head' in key and 'conv' not in key:
+                if self.state_dict()[key].shape[0] != value.shape[0]:
+                    with open(self.label_map_path, 'r', encoding='utf-8') as file:
+                        label_map = [int(i) for i in file.readlines()]
+                    value = value[label_map]
+
+            if self.block_type is PvtBlock and 'pos_embed' in key:
+                value = F.interpolate(value,
+                                      size=self.state_dict()[key].shape[-2:],
+                                      mode='bilinear',
+                                      align_corners=True)
+
+            new_state_dict[key] = value
+
+        if strict:
+            ckpt_keys = new_state_dict.keys()
+            model_keys = self.state_dict().keys()
+
+            for key in ckpt_keys:
+                assert key in model_keys
+
+            for key in model_keys:
+                if 'relative_position_index' in key:
+                    continue
+
+                if 'attn_mask' in key:
+                    continue
+
+                assert key in ckpt_keys
+
+        return super().load_state_dict(new_state_dict, False)
