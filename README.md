@@ -1,4 +1,8 @@
-# [Demystify Transformers & Convolutions in Modern Image Deep Networks](https://arxiv.org/abs/2211.05781)
+# Demystify Transformers & Convolutions in Modern Image Deep Networks
+
+Xiaowei Hu^, Min Shi^, Weiyun Wang^, Sitong Wu^, Linjie Xing, Wenhai Wang, Xizhou Zhu, Lewei Lu, Jie Zhou, Xiaogang Wang, Yu Qiao, and Jifeng Dai*.
+
+**IEEE Transactions on Pattern Analysis and Machine Intelligence (IEEE TPAMI), 2024**
 
 This repository is a codebase for modern image deep networks, which is used in our paper ["Demystify Transformers & Convolutions in Modern Image Deep Networks"](https://arxiv.org/abs/2211.05781). In this paper, we develop a unified architecture for different spatial token mixing paradigms, and make various comparisons and analyses for these "spatial token mixers". 
 
