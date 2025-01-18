@@ -2,7 +2,7 @@
 
 Xiaowei Hu^, Min Shi^, Weiyun Wang^, Sitong Wu^, Linjie Xing, Wenhai Wang, Xizhou Zhu, Lewei Lu, Jie Zhou, Xiaogang Wang, Yu Qiao, and Jifeng Dai*.
 
-**IEEE Transactions on Pattern Analysis and Machine Intelligence (IEEE TPAMI), 2024**
+**IEEE Transactions on Pattern Analysis and Machine Intelligence (IEEE TPAMI), 2025**
 
 This repository is a codebase for modern image deep networks, which is used in our paper ["Demystify Transformers & Convolutions in Modern Image Deep Networks"](https://arxiv.org/abs/2211.05781). In this paper, we develop a unified architecture for different spatial token mixing paradigms, and make various comparisons and analyses for these "spatial token mixers". 
 
@@ -20,7 +20,7 @@ This repository is a codebase for modern image deep networks, which is used in o
 
 
 ## Updates
-+ [2024.10.06] The code and checkpoints for Unified-InternImage are released.
++ [2025.10.06] The code and checkpoints for Unified-InternImage are released.
 + [2022.12.30] The code for ImageNet-1k classification is released.
 + [2022.12.30] The code for COCO object detection is released.
 
@@ -156,11 +156,11 @@ Plese refer this [guide](detection/readme.md) the train and evaluate the models 
 ## Bibtex
 If you find our work or models useful, please consider citing our paper as follows:
 ```
-@article{hu2024demystify,
+@article{hu2025demystify,
   title={Demystify Transformers \& Convolutions in Modern Image Deep Networks},
   author={Hu, Xiaowei and Shi, Min and Wang, Weiyun and Wu, Sitong and Xing, Linjie and Wang, Wenhai and Zhu, Xizhou and Lu, Lewei and Zhou, Jie and Wang, Xiaogang and Qiao, Yu and Dai, Jifeng},
   journal={IEEE Transactions on Pattern Analysis and Machine Intelligence (IEEE TPAMI)},
-  year={2024}
+  year={2025}
 }
 ```
 
