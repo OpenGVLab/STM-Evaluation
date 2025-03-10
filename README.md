@@ -160,6 +160,9 @@ If you find our work or models useful, please consider citing our paper as follo
   title={Demystify Transformers \& Convolutions in Modern Image Deep Networks},
   author={Hu, Xiaowei and Shi, Min and Wang, Weiyun and Wu, Sitong and Xing, Linjie and Wang, Wenhai and Zhu, Xizhou and Lu, Lewei and Zhou, Jie and Wang, Xiaogang and Qiao, Yu and Dai, Jifeng},
   journal={IEEE Transactions on Pattern Analysis and Machine Intelligence (IEEE TPAMI)},
+  volume={47},
+  number={4},
+  pages={2416-2428},
   year={2025}
 }
 ```
